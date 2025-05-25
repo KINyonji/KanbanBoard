@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useCallback } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -19,11 +19,12 @@ import { CustomPointerSensor } from './sensors/CustomPointerSensor'
 import { useKanbanStore } from './store/kanbanStore'
 import type { CardData } from './types/card'
 
-import './App.css'
 import { getCurrentKST } from '@/utils/date'
 
+import groupTitles from '@/types/groupTitles'
+
 function App() {
-  // ✅ Zustand 개별 selector 구독
+
   const itemGroups = useKanbanStore((state) => state.itemGroups)
   const itemCount = useKanbanStore((state) => state.itemCount)
   const addCard = useKanbanStore((state) => state.addCard)
@@ -152,12 +153,6 @@ function App() {
     setActiveId(null)
   }
 
-  const groupTitles: Record<string, string> = {
-    group1: 'to-do',
-    group2: 'in progress',
-    group3: 'done',
-  }
-
   const handleOpenDialog = (group: string) => {
     setSelectedGroup(group)
     openDialog('add')
@@ -167,37 +162,50 @@ function App() {
     removeCard(groupId, id)
   }
 
+  const handleConfirm = useCallback(
+    (title: string, author: string) => {
+      if (!selectedGroup) return
+
+      if (dialogType === 'add') {
+        const newCard: CardData = {
+          id: String(itemCount),
+          issueId: `ISSUE-${itemCount}`,
+          content: title,
+          author,
+          createdAt: getCurrentKST(),
+        }
+        addCard(selectedGroup, newCard)
+        incrementCount()
+      } else if (dialogType === 'edit' && editingCard) {
+        const updatedCard = {
+          ...editingCard,
+          content: title,
+          author,
+          createdAt: getCurrentKST(),
+        }
+        useKanbanStore.getState().updateCard(selectedGroup, updatedCard)
+      }
+
+      closeDialog()
+    },
+    [
+      selectedGroup,
+      dialogType,
+      editingCard,
+      itemCount,
+      addCard,
+      incrementCount,
+      closeDialog,
+    ],
+  )
+
   return (
     <>
       {isDialogOpen && (
         <Dialog
           initialTitle={editingCard?.content || ''}
           initialAuthor={editingCard?.author || ''}
-          onConfirm={(title, author) => {
-            if (!selectedGroup) return
-
-            if (dialogType === 'add') {
-              const newCard: CardData = {
-                id: String(itemCount),
-                issueId: `ISSUE-${itemCount}`,
-                content: title,
-                author,
-                createdAt: getCurrentKST(),
-              }
-              addCard(selectedGroup, newCard)
-              incrementCount()
-            } else if (dialogType === 'edit' && editingCard) {
-              const updatedCard = {
-                ...editingCard,
-                content: title,
-                author,
-                createdAt: getCurrentKST(),
-              }
-              useKanbanStore.getState().updateCard(selectedGroup, updatedCard)
-            }
-
-            closeDialog()
-          }}
+          onConfirm={handleConfirm}
           onClose={closeDialog}
         />
       )}
@@ -213,7 +221,7 @@ function App() {
           <h2 className="text-3xl font-bold m-0 flex items-center gap-2">
             칸반 보드
           </h2>
-          <div className="container">
+          <div style={{ display: 'flex', gap: '10px' }}>
             {Object.keys(itemGroups).map((group) => (
               <div
                 key={group}
