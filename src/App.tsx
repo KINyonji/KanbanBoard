@@ -20,6 +20,7 @@ import { useKanbanStore } from './store/kanbanStore'
 import type { CardData } from './types/card'
 
 import './App.css'
+import { getCurrentKST } from '@/utils/date'
 
 function App() {
   // ✅ Zustand 개별 selector 구독
@@ -27,7 +28,9 @@ function App() {
   const itemCount = useKanbanStore((state) => state.itemCount)
   const addCard = useKanbanStore((state) => state.addCard)
   const removeCard = useKanbanStore((state) => state.removeCard)
-  const moveCardBetweenGroups = useKanbanStore((state) => state.moveCardBetweenGroups)
+  const moveCardBetweenGroups = useKanbanStore(
+    (state) => state.moveCardBetweenGroups,
+  )
   const incrementCount = useKanbanStore((state) => state.incrementCount)
 
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -39,10 +42,21 @@ function App() {
     useSensor(TouchSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   )
 
-  const { isOpen: isDialogOpen, openDialog, closeDialog } = useDialog()
+  const {
+    isOpen: isDialogOpen,
+    dialogType,
+    editingCard,
+    openDialog,
+    closeDialog,
+  } = useDialog()
+
+  const handleEditCard = (card: CardData, groupId: string) => {
+    setSelectedGroup(groupId)
+    openDialog('edit', card)
+  }
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     const containerId = active.data.current?.sortable?.containerId
@@ -59,7 +73,8 @@ function App() {
     const activeContainer = active.data.current?.sortable?.containerId
     const overContainer = over.data.current?.sortable?.containerId || over.id
 
-    if (!activeContainer || !overContainer || activeContainer === overContainer) return
+    if (!activeContainer || !overContainer || activeContainer === overContainer)
+      return
 
     const activeIndex = active.data.current?.sortable?.index
     const overIndex =
@@ -67,13 +82,27 @@ function App() {
         ? itemGroups[overContainer].length
         : over.data.current?.sortable?.index
 
-    const activeCard = itemGroups[activeContainer].find((c) => c.id === active.id)
-    if (!activeCard || typeof activeIndex !== 'number' || typeof overIndex !== 'number') return
+    const activeCard = itemGroups[activeContainer].find(
+      (c) => c.id === active.id,
+    )
+    if (
+      !activeCard ||
+      typeof activeIndex !== 'number' ||
+      typeof overIndex !== 'number'
+    )
+      return
 
-    moveCardBetweenGroups(activeContainer, overContainer, activeIndex, overIndex, activeCard)
+    moveCardBetweenGroups(
+      activeContainer,
+      overContainer,
+      activeIndex,
+      overIndex,
+      activeCard,
+    )
   }
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    console.log('DRAG END', { active, over })
     if (!over || active.id === over.id) {
       setActiveId(null)
       return
@@ -87,18 +116,37 @@ function App() {
         ? itemGroups[overContainer].length
         : over.data.current?.sortable?.index
 
-    const activeCard = itemGroups[activeContainer]?.find((c) => c.id === active.id)
+    const activeCard = itemGroups[activeContainer]?.find(
+      (c) => c.id === active.id,
+    )
 
-    if (!activeCard || !activeContainer || !overContainer ||
-      typeof activeIndex !== 'number' || typeof overIndex !== 'number') {
+    if (
+      !activeCard ||
+      !activeContainer ||
+      !overContainer ||
+      typeof activeIndex !== 'number' ||
+      typeof overIndex !== 'number'
+    ) {
       setActiveId(null)
       return
     }
 
     if (activeContainer === overContainer && activeIndex !== overIndex) {
-      moveCardBetweenGroups(activeContainer, overContainer, activeIndex, overIndex, activeCard)
+      moveCardBetweenGroups(
+        activeContainer,
+        overContainer,
+        activeIndex,
+        overIndex,
+        activeCard,
+      )
     } else if (activeContainer !== overContainer) {
-      moveCardBetweenGroups(activeContainer, overContainer, activeIndex, overIndex, activeCard)
+      moveCardBetweenGroups(
+        activeContainer,
+        overContainer,
+        activeIndex,
+        overIndex,
+        activeCard,
+      )
     }
 
     setActiveId(null)
@@ -112,7 +160,7 @@ function App() {
 
   const handleOpenDialog = (group: string) => {
     setSelectedGroup(group)
-    openDialog()
+    openDialog('add')
   }
 
   const handleDeleteCard = (id: string, groupId: string) => {
@@ -123,25 +171,37 @@ function App() {
     <>
       {isDialogOpen && (
         <Dialog
-          mode="create"
-          initialTitle=""
-          initialAuthor=""
+          initialTitle={editingCard?.content || ''}
+          initialAuthor={editingCard?.author || ''}
           onConfirm={(title, author) => {
             if (!selectedGroup) return
-            const newCard: CardData = {
-              id: String(itemCount),
-              issueId: `ISSUE-${itemCount}`,
-              content: title,
-              author,
-              createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+
+            if (dialogType === 'add') {
+              const newCard: CardData = {
+                id: String(itemCount),
+                issueId: `ISSUE-${itemCount}`,
+                content: title,
+                author,
+                createdAt: getCurrentKST(),
+              }
+              addCard(selectedGroup, newCard)
+              incrementCount()
+            } else if (dialogType === 'edit' && editingCard) {
+              const updatedCard = {
+                ...editingCard,
+                content: title,
+                author,
+                createdAt: getCurrentKST(),
+              }
+              useKanbanStore.getState().updateCard(selectedGroup, updatedCard)
             }
-            addCard(selectedGroup, newCard)
-            incrementCount()
+
             closeDialog()
           }}
           onClose={closeDialog}
         />
       )}
+
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -160,7 +220,9 @@ function App() {
                 className="flex flex-col items-start gap-2 p-2 border rounded min-w-[240px] bg-white"
               >
                 <div className="w-full flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-lg">{groupTitles[group]}</h3>
+                  <h3 className="font-semibold text-lg">
+                    {groupTitles[group]}
+                  </h3>
                   <button
                     className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded"
                     type="button"
@@ -173,6 +235,7 @@ function App() {
                   id={group}
                   items={itemGroups[group]}
                   onDelete={(id) => handleDeleteCard(id, group)}
+                  onEdit={(card) => handleEditCard(card, group)}
                 />
               </div>
             ))}

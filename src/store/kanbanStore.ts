@@ -1,4 +1,3 @@
-// src/store/kanbanStore.ts
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { CardData } from '@/types/card'
@@ -18,9 +17,10 @@ interface KanbanState {
     to: string,
     fromIndex: number,
     toIndex: number,
-    card: CardData
+    card: CardData,
   ) => void
   incrementCount: () => void
+  updateCard: (groupId: string, updatedCard: CardData) => void
 }
 
 const defaultGroups: ItemGroups = {
@@ -47,16 +47,25 @@ export const useKanbanStore = create<KanbanState>()(
           itemGroups: {
             ...state.itemGroups,
             [groupId]: state.itemGroups[groupId].filter(
-              (card) => card.id !== cardId
+              (card) => card.id !== cardId,
             ),
           },
         })),
-      moveCardBetweenGroups: (from, to, fromIdx, toIdx, card) =>
+      moveCardBetweenGroups: (from, to, fromIdx, toIdx) =>
         set((state) => {
+          const isSameGroup = from === to
+
           const updatedFrom = [...state.itemGroups[from]]
-          updatedFrom.splice(fromIdx, 1)
-          const updatedTo = [...state.itemGroups[to]]
-          updatedTo.splice(toIdx, 0, card)
+          const [movingCard] = updatedFrom.splice(fromIdx, 1)
+
+          const updatedTo = isSameGroup
+            ? updatedFrom
+            : [...state.itemGroups[to]]
+
+          const adjustedToIndex =
+            isSameGroup && fromIdx < toIdx ? toIdx - 1 : toIdx
+
+          updatedTo.splice(adjustedToIndex, 0, movingCard)
 
           return {
             itemGroups: {
@@ -68,9 +77,23 @@ export const useKanbanStore = create<KanbanState>()(
         }),
       incrementCount: () =>
         set((state) => ({ itemCount: state.itemCount + 1 })),
+
+      // ✅ 카드 수정 기능
+      updateCard: (groupId, updatedCard) =>
+        set((state) => {
+          const updatedGroup = state.itemGroups[groupId].map((card) =>
+            card.id === updatedCard.id ? updatedCard : card,
+          )
+          return {
+            itemGroups: {
+              ...state.itemGroups,
+              [groupId]: updatedGroup,
+            },
+          }
+        }),
     }),
     {
       name: 'kanban-storage',
-    }
-  )
+    },
+  ),
 )

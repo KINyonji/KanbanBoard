@@ -11,9 +11,10 @@ type Props = {
   id: string
   items: CardData[]
   onDelete?: (id: string, groupId: string) => void
+  onEdit?: (card: CardData, groupId: string) => void
 }
 
-const Droppable: React.FC<Props> = ({ id, items, onDelete }) => {
+const Droppable: React.FC<Props> = ({ id, items, onDelete, onEdit }) => {
   const { setNodeRef } = useDroppable({ id })
 
   return (
@@ -24,6 +25,7 @@ const Droppable: React.FC<Props> = ({ id, items, onDelete }) => {
             key={card.id}
             card={card}
             onDelete={(cardId) => onDelete?.(cardId, id)}
+            onEdit={(cardData) => onEdit?.(cardData, id)}
           />
         ))}
       </ul>
