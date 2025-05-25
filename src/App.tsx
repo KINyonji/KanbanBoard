@@ -3,7 +3,6 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -21,6 +20,8 @@ import type { CardData } from './types/card'
 
 import { useDialog } from './hooks/useDialog'
 import Dialog from './components/Dialog'
+
+import { CustomPointerSensor } from './sensors/CustomPointerSensor'
 
 type ItemGroups = {
   [key: string]: CardData[]
@@ -88,7 +89,7 @@ function App() {
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const sensors = useSensors(
-    useSensor(MouseSensor),
+    useSensor(CustomPointerSensor),
     useSensor(TouchSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -235,26 +236,17 @@ function App() {
 
   const [itemCount, setItemCount] = useState(10) // 1~9까지 있으므로 10번부터
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
-  // const handleAddItem = (groupId: string) => {
-  //   const newCard: CardData = {
-  //     id: String(itemCount),
-  //     issueId: `ISSUE-${itemCount}`,
-  //     content: '새로운 이슈입니다.',
-  //     author: '작성자',
-  //     createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
-  //   }
-
-  //   setItemGroups((prev) => ({
-  //     ...prev,
-  //     [groupId]: [...prev[groupId], newCard],
-  //   }))
-
-  //   setItemCount((prev) => prev + 1)
-  // }
 
   const handleOpenDialog = (group: string) => {
     setSelectedGroup(group)
     openDialog()
+  }
+
+  const handleDeleteCard = (id: string, groupId: string) => {
+    setItemGroups((prev) => ({
+      ...prev,
+      [groupId]: prev[groupId].filter((card) => card.id !== id),
+    }))
   }
 
   return (
@@ -321,8 +313,8 @@ function App() {
                 <Droppable
                   id={group}
                   items={itemGroups[group]}
-                  activeId={activeId}
                   key={group}
+                  onDelete={(id) => handleDeleteCard(id, group)}
                 />
               </div>
             ))}

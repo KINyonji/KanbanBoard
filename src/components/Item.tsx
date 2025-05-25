@@ -1,18 +1,28 @@
-import React from "react";
-import "./Item.css";
+import React from 'react'
+import './Item.css'
 
-import type { CardData } from "../types/card";
+import type { CardData } from '../types/card'
 
-type ItemProps = {
-  card: CardData | null;
-  dragOverlay?: boolean;
-};
+type Props = {
+  card: CardData | null
+  dragOverlay?: boolean
+  onDelete?: (id: string) => void
+  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>
+}
 
-const Item: React.FC<ItemProps> = ({ card, dragOverlay }) => {
-  if (!card) return null;
+const Item: React.FC<Props> = ({ card, dragOverlay = false, onDelete, }) => {
+  if (!card) return null
+
   const style: React.CSSProperties = {
-    cursor: dragOverlay ? "grabbing" : "grab",
-  };
+    cursor: dragOverlay ? 'grabbing' : 'grab',
+  }
+
+  const handleDelete = () => {
+    console.log(123)
+    if (card && onDelete) {
+      onDelete(card.id)
+    }
+  }
 
   return (
     <div className="item-card" style={style}>
@@ -20,7 +30,9 @@ const Item: React.FC<ItemProps> = ({ card, dragOverlay }) => {
         <strong>{card.issueId}</strong>
         <div className="space-x-1 text-sm">
           <button className="bg-gray-200 px-2 rounded">수정</button>
-          <button className="bg-gray-200 px-2 rounded">삭제</button>
+          <button className="bg-gray-200 px-2 rounded" onClick={handleDelete}>
+            삭제
+          </button>
         </div>
       </div>
       <p className="text-sm mb-2">{card.content}</p>
@@ -29,7 +41,7 @@ const Item: React.FC<ItemProps> = ({ card, dragOverlay }) => {
         <span>{card.createdAt}</span>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Item;
+export default Item
