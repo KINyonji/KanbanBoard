@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
+import type { DialogType } from '../hooks/useDialog'
 
 type Props = {
-  mode?: string
+  mode?: DialogType
   initialTitle?: string
   initialAuthor?: string
   onConfirm: (title: string, author: string) => void

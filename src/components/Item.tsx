@@ -7,10 +7,11 @@ type Props = {
   card: CardData | null
   dragOverlay?: boolean
   onDelete?: (id: string) => void
+  onEdit?: (card: CardData) => void
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>
 }
 
-const Item: React.FC<Props> = ({ card, dragOverlay = false, onDelete, }) => {
+const Item: React.FC<Props> = ({ card, dragOverlay = false, onDelete, onEdit}) => {
   if (!card) return null
 
   const style: React.CSSProperties = {
@@ -26,12 +27,19 @@ const Item: React.FC<Props> = ({ card, dragOverlay = false, onDelete, }) => {
   }
   }
 
+  const handleEdit = () => {
+  if (card && onEdit) {
+    onEdit(card)
+  }
+}
+
+
   return (
     <div className="item-card" style={style}>
       <div className="flex justify-between mb-2">
         <strong>{card.issueId}</strong>
         <div className="space-x-1 text-sm">
-          <button className="bg-gray-200 px-2 rounded">수정</button>
+          <button className="bg-gray-200 px-2 rounded" onClick={handleEdit}>수정</button>
           <button className="bg-gray-200 px-2 rounded" onClick={handleDelete}>
             삭제
           </button>
