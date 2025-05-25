@@ -18,10 +18,12 @@ const Item: React.FC<Props> = ({ card, dragOverlay = false, onDelete, }) => {
   }
 
   const handleDelete = () => {
-    console.log(123)
-    if (card && onDelete) {
-      onDelete(card.id)
-    }
+    const confirmed = window.confirm('정말 이 항목을 삭제하시겠습니까?')
+  if (!confirmed) return
+
+  if (card && onDelete) {
+    onDelete(card.id)
+  }
   }
 
   return (
