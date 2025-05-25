@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 type Props = {
@@ -17,6 +17,7 @@ const Dialog: React.FC<Props> = ({
 }) => {
   const [title, setTitle] = React.useState(initialTitle)
   const [author, setAuthor] = React.useState(initialAuthor)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -26,10 +27,21 @@ const Dialog: React.FC<Props> = ({
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
-  const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose()
+  const handleConfirm = () => {
+    if (!title.trim() && !author.trim()) {
+      setError('제목과 담당자 id는 필수 항목입니다.')
+      return
     }
+    if (!title.trim()) {
+      setError('제목은 필수 항목입니다.')
+      return
+    }
+    if (!author.trim()) {
+      setError('담당자 id는 필수 항목입니다.')
+      return
+    }
+    setError('')
+    onConfirm(title, author)
   }
 
   const dialog = (
@@ -43,7 +55,6 @@ const Dialog: React.FC<Props> = ({
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      onClick={handleClickOutside}
     >
       <div
         style={{
@@ -55,10 +66,26 @@ const Dialog: React.FC<Props> = ({
           boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
         }}
       >
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '1rem' }}>항목 추가/수정</h2>
+        <h2
+          style={{
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            marginBottom: '1rem',
+          }}
+        >
+          항목 추가/수정
+        </h2>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.3rem' }}>이슈 제목</label>
+          <label
+            style={{
+              display: 'block',
+              fontSize: '0.9rem',
+              marginBottom: '0.3rem',
+            }}
+          >
+            이슈 제목
+          </label>
           <input
             type="text"
             value={title}
@@ -75,7 +102,15 @@ const Dialog: React.FC<Props> = ({
         </div>
 
         <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.3rem' }}>담당자 id</label>
+          <label
+            style={{
+              display: 'block',
+              fontSize: '0.9rem',
+              marginBottom: '0.3rem',
+            }}
+          >
+            담당자 id
+          </label>
           <input
             type="text"
             value={author}
@@ -91,7 +126,21 @@ const Dialog: React.FC<Props> = ({
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+        {error && (
+          <div
+            style={{
+              color: '#dc2626',
+              fontSize: '0.875rem',
+              marginBottom: '1rem',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <div
+          style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}
+        >
           <button
             onClick={onClose}
             style={{
@@ -106,7 +155,7 @@ const Dialog: React.FC<Props> = ({
             취소
           </button>
           <button
-            onClick={() => onConfirm(title, author)}
+            onClick={handleConfirm}
             style={{
               padding: '0.4rem 1rem',
               backgroundColor: '#d1d5db',
