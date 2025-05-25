@@ -33,7 +33,7 @@ export const useKanbanStore = create<KanbanState>()(
   persist(
     (set) => ({
       itemGroups: defaultGroups,
-      itemCount: 10,
+      itemCount: 1,
       setItemGroups: (groups) => set({ itemGroups: groups }),
       addCard: (groupId, card) =>
         set((state) => ({
@@ -78,7 +78,7 @@ export const useKanbanStore = create<KanbanState>()(
       incrementCount: () =>
         set((state) => ({ itemCount: state.itemCount + 1 })),
 
-      // ✅ 카드 수정 기능
+      // 카드 수정 기능
       updateCard: (groupId, updatedCard) =>
         set((state) => {
           const updatedGroup = state.itemGroups[groupId].map((card) =>

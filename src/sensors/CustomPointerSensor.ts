@@ -1,4 +1,3 @@
-// src/sensors/CustomPointerSensor.ts
 import { PointerSensor, type PointerSensorOptions } from '@dnd-kit/core'
 
 export class CustomPointerSensor extends PointerSensor {

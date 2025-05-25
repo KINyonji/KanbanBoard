@@ -1,6 +1,5 @@
-// hooks/useDialog.ts
 import { useState } from 'react'
-import type { CardData } from '../types/card'
+import type { CardData } from '@/types/card'
 
 export type DialogType = 'add' | 'edit'
 

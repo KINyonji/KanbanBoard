@@ -1,0 +1,100 @@
+// hooks/useDragHandlers.ts
+import { useCallback } from 'react'
+import type { CardData } from '@/types/card'
+import type {
+  DragStartEvent,
+  DragOverEvent,
+  DragEndEvent,
+} from '@dnd-kit/core'
+
+interface Props {
+  itemGroups: Record<string, CardData[]>
+  moveCardBetweenGroups: (
+    from: string,
+    to: string,
+    fromIndex: number,
+    toIndex: number,
+    card: CardData
+  ) => void
+  setActiveCard: (card: CardData | null) => void
+  setActiveId: (id: string | null) => void
+}
+
+export function useDragHandlers({
+  itemGroups,
+  moveCardBetweenGroups,
+  setActiveCard,
+  setActiveId,
+}: Props) {
+  
+  const getDragMetaData = (
+    active: DragStartEvent['active'] | DragOverEvent['active'] | DragEndEvent['active'],
+    over: DragOverEvent['over'] | DragEndEvent['over']
+  ) => {
+    const from = active.data.current?.sortable?.containerId
+    const to = over?.data.current?.sortable?.containerId || over?.id
+    const fromIndex = active.data.current?.sortable?.index
+    const toIndex =
+      over && over.id in itemGroups
+        ? itemGroups[to].length
+        : over?.data.current?.sortable?.index
+
+    const card = from ? itemGroups[from]?.find((c) => c.id === active.id) : null
+
+    return {
+      from,
+      to,
+      fromIndex,
+      toIndex,
+      card,
+    }
+  }
+
+  const handleDragStart = useCallback(
+    ({ active }: DragStartEvent) => {
+      const containerId = active.data.current?.sortable?.containerId
+      const card = itemGroups[containerId]?.find((c) => c.id === active.id) ?? null
+      setActiveCard(card)
+    },
+    [itemGroups, setActiveCard],
+  )
+
+  const handleDragCancel = useCallback(() => {
+    setActiveId(null)
+  }, [setActiveId])
+
+  const handleDragOver = useCallback(
+    ({ active, over }: DragOverEvent) => {
+      if (!over) return
+
+      const { from, to, fromIndex, toIndex, card } = getDragMetaData(active, over)
+
+      if (!card || !from || !to || from === to || fromIndex == null || toIndex == null) return
+
+      moveCardBetweenGroups(from, to, fromIndex, toIndex, card)
+    },
+    [itemGroups, moveCardBetweenGroups],
+  )
+
+  const handleDragEnd = useCallback(
+    ({ active, over }: DragEndEvent) => {
+      if (!over || active.id === over.id) {
+        setActiveId(null)
+        return
+      }
+
+      const { from, to, fromIndex, toIndex, card } = getDragMetaData(active, over)
+
+      if (!card || !from || !to || fromIndex == null || toIndex == null) {
+        setActiveId(null)
+        return
+      }
+
+      moveCardBetweenGroups(from, to, fromIndex, toIndex, card)
+      setActiveId(null)
+    },
+    [itemGroups, moveCardBetweenGroups, setActiveId],
+  )
+
+  return { handleDragStart, handleDragCancel, handleDragOver, handleDragEnd }
+}

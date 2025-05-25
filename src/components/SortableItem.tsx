@@ -3,8 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import Item from "./Item";
-
-import type { CardData } from "../types/card";
+import type { CardData } from "@/types/card";
 
 type Props = {
   card: CardData;
