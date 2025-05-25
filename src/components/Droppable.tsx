@@ -3,9 +3,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 
 import SortableItem from './SortableItem'
-
-import './Droppable.css'
-import type { CardData } from '../types/card'
+import type { CardData } from '@/types/card'
 
 type Props = {
   id: string
@@ -19,7 +17,16 @@ const Droppable: React.FC<Props> = ({ id, items, onDelete, onEdit }) => {
 
   return (
     <SortableContext id={id} items={items} strategy={rectSortingStrategy}>
-      <ul className="droppable" ref={setNodeRef}>
+      <ul
+        ref={setNodeRef}
+        style={{
+          minWidth: '110px',
+          padding: '20px 10px',
+          border: '1px solid black',
+          borderRadius: '5px',
+          listStyleType: 'none',
+        }}
+      >
         {items.map((card) => (
           <SortableItem
             key={card.id}

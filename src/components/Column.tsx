@@ -1,92 +1,48 @@
-import React, { useState } from 'react'
-import { useKanbanStore } from '@/store/kanbanStore'
-import SortableCard from './SortableCard'
+import React from 'react'
+import Droppable from './Droppable'
+import type { CardData } from '@/types/card'
+import groupTitles from '@/types/groupTitles'
 
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-
-type ColumnProps = {
-  title: string
-  columnId: string
+type Props = {
+  itemGroups: Record<string, CardData[]>
+  handleOpenDialog: (group: string) => void
+  handleDeleteCard: (id: string, groupId: string) => void
+  handleEditCard: (card: CardData, groupId: string) => void
 }
 
-const Column: React.FC<ColumnProps> = ({ title, columnId }) => {
-  const [newCardText, setNewCardText] = useState('')
-  const [isAdding, setIsAdding] = useState(false)
-  const addCard = useKanbanStore((s) => s.addCard)
-
-  const cards = useKanbanStore((state) =>
-    state.cards.filter((card) => card.columnId === columnId),
-  )
-
-  const handleAddCard = () => {
-    if (newCardText.trim() === '') return
-    addCard(columnId, newCardText.trim())
-    setNewCardText('')
-    setIsAdding(false) // 입력창 닫기
-  }
-
+const Column: React.FC<Props> = ({
+  itemGroups,
+  handleOpenDialog,
+  handleDeleteCard,
+  handleEditCard,
+}) => {
   return (
-    <div className="bg-white border border-gray-300 rounded w-72 flex flex-col p-3">
-      <div className="flex justify-between items-center mb-2 font-semibold text-sm">
-        <span>{title}</span>
-        <button
-          onClick={() => setIsAdding(true)}
-          className="text-xs px-2 py-1 border border-gray-400 rounded hover:bg-gray-100"
+    <div style={{ display: 'flex', gap: '10px' }}>
+      {Object.keys(itemGroups).map((group) => (
+        <div
+          key={group}
+          className="flex flex-col items-start gap-2 p-2 border rounded min-w-[240px] bg-white"
         >
-          항목 추가
-        </button>
-      </div>
-
-      <SortableContext
-        items={cards.map((c) => c.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        <div className="flex-1 overflow-y-auto max-h-full pr-1 space-y-3">
-          {cards.map((card) => (
-            <SortableCard
-              key={card.id}
-              id={card.id}
-              columnId={columnId}
-              content={card.content}
-            />
-          ))}
-        </div>
-      </SortableContext>
-
-      {isAdding && (
-        <div className="mt-2 space-y-2">
-          <input
-            type="text"
-            value={newCardText}
-            onChange={(e) => setNewCardText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleAddCard()
-              }
-            }}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-            placeholder="카드 내용을 입력하세요"
-            autoFocus
-          />
-          <div className="flex justify-end gap-2">
+          <div className="w-full flex justify-between items-center mb-2">
+            <h3 className="font-semibold text-lg">
+              {groupTitles[group] ?? group}
+            </h3>
             <button
-              onClick={() => {
-                setIsAdding(false)
-                setNewCardText('')
-              }}
-              className="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-100"
+              className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-2 py-1 rounded"
+              type="button"
+              onClick={() => handleOpenDialog(group)}
             >
-              취소
-            </button>
-            <button
-              onClick={handleAddCard}
-              className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              등록
+              항목 추가
             </button>
           </div>
+          <Droppable
+            id={group}
+            items={itemGroups[group]}
+            onDelete={(id) => handleDeleteCard(id, group)}
+            onEdit={(card) => handleEditCard(card, group)}
+          />
         </div>
-      )}
+      ))}
     </div>
   )
 }
