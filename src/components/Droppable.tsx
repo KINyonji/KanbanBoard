@@ -5,22 +5,26 @@ import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import SortableItem from './SortableItem'
 
 import './Droppable.css'
-import type { CardData } from "../types/card";
+import type { CardData } from '../types/card'
 
-type DroppableProps = {
+type Props = {
   id: string
   items: CardData[]
-  activeId: string | null
+  onDelete?: (id: string, groupId: string) => void
 }
 
-const Droppable: React.FC<DroppableProps> = ({ id, items }) => {
+const Droppable: React.FC<Props> = ({ id, items, onDelete }) => {
   const { setNodeRef } = useDroppable({ id })
 
   return (
     <SortableContext id={id} items={items} strategy={rectSortingStrategy}>
       <ul className="droppable" ref={setNodeRef}>
         {items.map((card) => (
-          <SortableItem key={card.id} card={card} />
+          <SortableItem
+            key={card.id}
+            card={card}
+            onDelete={(cardId) => onDelete?.(cardId, id)}
+          />
         ))}
       </ul>
     </SortableContext>
