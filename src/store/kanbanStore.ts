@@ -1,92 +1,76 @@
-import { createStore } from 'zustand'
-import { useStoreWithEqualityFn } from 'zustand/traditional'
+// src/store/kanbanStore.ts
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import type { CardData } from '@/types/card'
 
-export type Card = {
-  id: string
-  content: string
-  columnId: string
+type ItemGroups = {
+  [key: string]: CardData[]
 }
 
-type KanbanState = {
-  cards: Card[]
-  addCard: (columnId: string, content: string) => void
-  removeCard: (id: string) => void
-  getCardsByColumn: (columnId: string) => Card[]
-  moveCard: (columnId: string, fromIndex: number, toIndex: number) => void
-  moveCardToColumn: (id: string, toColumnId: string, toIndex: number) => void
+interface KanbanState {
+  itemGroups: ItemGroups
+  itemCount: number
+  setItemGroups: (groups: ItemGroups) => void
+  addCard: (groupId: string, card: CardData) => void
+  removeCard: (groupId: string, cardId: string) => void
+  moveCardBetweenGroups: (
+    from: string,
+    to: string,
+    fromIndex: number,
+    toIndex: number,
+    card: CardData
+  ) => void
+  incrementCount: () => void
 }
 
-const kanbanStore = createStore<KanbanState>((set, get) => ({
-  cards: [
-    { id: '1', content: '할 일 1', columnId: 'todo' },
-    { id: '2', content: '할 일 2', columnId: 'todo' },
-    { id: '3', content: '진행 중 1', columnId: 'inprogress' },
-    { id: '4', content: '완료됨 1', columnId: 'done' },
-  ],
-  addCard: (columnId, content) => {
-    const newCard = {
-      id: Date.now().toString(),
-      content,
-      columnId,
+const defaultGroups: ItemGroups = {
+  group1: [],
+  group2: [],
+  group3: [],
+}
+
+export const useKanbanStore = create<KanbanState>()(
+  persist(
+    (set) => ({
+      itemGroups: defaultGroups,
+      itemCount: 10,
+      setItemGroups: (groups) => set({ itemGroups: groups }),
+      addCard: (groupId, card) =>
+        set((state) => ({
+          itemGroups: {
+            ...state.itemGroups,
+            [groupId]: [...state.itemGroups[groupId], card],
+          },
+        })),
+      removeCard: (groupId, cardId) =>
+        set((state) => ({
+          itemGroups: {
+            ...state.itemGroups,
+            [groupId]: state.itemGroups[groupId].filter(
+              (card) => card.id !== cardId
+            ),
+          },
+        })),
+      moveCardBetweenGroups: (from, to, fromIdx, toIdx, card) =>
+        set((state) => {
+          const updatedFrom = [...state.itemGroups[from]]
+          updatedFrom.splice(fromIdx, 1)
+          const updatedTo = [...state.itemGroups[to]]
+          updatedTo.splice(toIdx, 0, card)
+
+          return {
+            itemGroups: {
+              ...state.itemGroups,
+              [from]: updatedFrom,
+              [to]: updatedTo,
+            },
+          }
+        }),
+      incrementCount: () =>
+        set((state) => ({ itemCount: state.itemCount + 1 })),
+    }),
+    {
+      name: 'kanban-storage',
     }
-    set((state) => ({
-      cards: [...state.cards, newCard],
-    }))
-  },
-  removeCard: (id) => {
-    console.log('실제 삭제 중인 카드 ID:', id)
-    set((state) => ({
-      cards: state.cards.filter((card) => card.id !== id),
-    }))
-  },
-  moveCard: (columnId, from, to) => {
-    set((state) => {
-      const sameColumn = state.cards.filter((c) => c.columnId === columnId)
-      const moving = sameColumn[from]
-      if (!moving) return state
-      const reordered = [...sameColumn]
-      reordered.splice(from, 1)
-      reordered.splice(to, 0, moving)
-      const others = state.cards.filter((c) => c.columnId !== columnId)
-      return { cards: [...others, ...reordered] }
-    })
-  },
-  getCardsByColumn: (columnId) => {
-    return get().cards.filter((card) => card.columnId === columnId)
-  },
-
-  moveCardToColumn: (id, toColumnId, toIndex) => {
-    set((state) => {
-      const cardToMove = state.cards.find((card) => card.id === id)
-      if (!cardToMove) return state
-
-      // 1. 카드 제거
-      const remainingCards = state.cards.filter((card) => card.id !== id)
-
-      // 2. 이동 대상 컬럼의 카드만 필터링
-      const targetColumnCards = remainingCards.filter(
-        (card) => card.columnId === toColumnId,
-      )
-
-      // 3. columnId 변경된 카드 생성
-      const movedCard = { ...cardToMove, columnId: toColumnId }
-
-      // 4. 대상 컬럼에 삽입
-      targetColumnCards.splice(toIndex, 0, movedCard)
-
-      // 5. 나머지 컬럼 카드와 합치기
-      const otherCards = remainingCards.filter(
-        (card) => card.columnId !== toColumnId,
-      )
-
-      return {
-        cards: [...otherCards, ...targetColumnCards],
-      }
-    })
-  },
-}))
-
-export const useKanbanStore = <T>(
-  selector: (state: KanbanState) => T,
-  equals?: (a: T, b: T) => boolean,
-) => useStoreWithEqualityFn(kanbanStore, selector, equals)
+  )
+)
