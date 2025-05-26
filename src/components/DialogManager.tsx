@@ -1,4 +1,6 @@
 // components/DialogManager.tsx
+"use client";
+
 import React, { useCallback } from 'react'
 import Dialog from './Dialog'
 import type { CardData } from '@/types/card'
