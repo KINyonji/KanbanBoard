@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react'
 import Droppable from './Droppable'
 import type { CardData } from '@/types/card'
@@ -17,14 +19,14 @@ const Column: React.FC<Props> = ({
   handleEditCard,
 }) => {
   return (
-    <div style={{ display: 'flex', gap: '10px' }}>
+    <div className="flex flex-row gap-4 px-4 py-2 overflow-x-auto">
       {Object.keys(itemGroups).map((group) => (
         <div
           key={group}
-          className="flex flex-col items-start gap-2 p-2 border rounded min-w-[240px] bg-white"
+          className="flex flex-col items-start gap-2 p-4 border border-gray-500 rounded-md min-w-[280px] flex-1 bg-white shadow"
         >
-          <div className="w-full flex justify-between items-center mb-2">
-            <h3 className="font-semibold text-lg">
+          <div className="w-full flex justify-between items-center mb-1">
+            <h3 className="font-semibold text-lg text-gray-800">
               {groupTitles[group] ?? group}
             </h3>
             <button

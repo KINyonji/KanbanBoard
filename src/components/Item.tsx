@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react'
 
 import type { CardData } from '@/types/card'
@@ -35,34 +37,33 @@ const Item: React.FC<Props> = ({
 
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        boxSizing: 'border-box',
-        width: '250px',
-        padding: '8px',
-        marginBottom: '10px',
-        border: '1px solid gray',
-        borderRadius: '5px',
-        userSelect: 'none',
-        backgroundColor: 'white',
-        cursor: dragOverlay ? 'grabbing' : 'grab',
-      }}
+      className={`bg-white border border-gray-300 rounded-md px-4 py-3 select-none ${
+        dragOverlay ? 'cursor-grabbing' : 'cursor-grab'
+      }`}
     >
-      <div className="flex justify-between mb-2 w-full">
-        <strong>{card.issueId}</strong>
-        <div className="space-x-1 text-sm">
-          <button className="bg-gray-200 px-2 rounded" onClick={handleEdit}>
+      <div className="flex justify-between items-center mb-2">
+        <strong className="text-gray-800">{card.issueId}</strong>
+        <div className="flex gap-1 text-sm">
+          <button
+            className="bg-gray-200 hover:bg-gray-300 px-2 py-0.5 rounded text-xs"
+            onClick={handleEdit}
+          >
             수정
           </button>
-          <button className="bg-gray-200 px-2 rounded" onClick={handleDelete}>
+          <button
+            className="bg-gray-200 hover:bg-gray-300 px-2 py-0.5 rounded text-xs"
+            onClick={handleDelete}
+          >
             삭제
           </button>
         </div>
       </div>
-      <p className="text-sm mb-2">{card.content}</p>
-      <div className="flex justify-between text-xs text-gray-500 w-full">
+
+      <p className="text-sm text-gray-700 mb-2 break-words whitespace-pre-line">
+        {card.content}
+      </p>
+
+      <div className="flex justify-between text-xs text-gray-500">
         <span>{card.author}</span>
         <span>{card.createdAt}</span>
       </div>

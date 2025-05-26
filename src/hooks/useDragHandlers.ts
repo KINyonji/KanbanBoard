@@ -1,4 +1,5 @@
-// hooks/useDragHandlers.ts
+"use client";
+
 import { useCallback } from 'react'
 import type { CardData } from '@/types/card'
 import type {
@@ -26,7 +27,7 @@ export function useDragHandlers({
   setActiveCard,
   setActiveId,
 }: Props) {
-  
+
   const getDragMetaData = (
     active: DragStartEvent['active'] | DragOverEvent['active'] | DragEndEvent['active'],
     over: DragOverEvent['over'] | DragEndEvent['over']

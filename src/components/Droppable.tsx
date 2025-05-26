@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
@@ -17,16 +19,7 @@ const Droppable: React.FC<Props> = ({ id, items, onDelete, onEdit }) => {
 
   return (
     <SortableContext id={id} items={items} strategy={rectSortingStrategy}>
-      <ul
-        ref={setNodeRef}
-        style={{
-          minWidth: '110px',
-          padding: '20px 10px',
-          border: '1px solid black',
-          borderRadius: '5px',
-          listStyleType: 'none',
-        }}
-      >
+      <div  ref={setNodeRef} className="flex flex-col gap-3 w-full">
         {items.map((card) => (
           <SortableItem
             key={card.id}
@@ -35,7 +28,7 @@ const Droppable: React.FC<Props> = ({ id, items, onDelete, onEdit }) => {
             onEdit={(cardData) => onEdit?.(cardData, id)}
           />
         ))}
-      </ul>
+      </div>
     </SortableContext>
   )
 }
