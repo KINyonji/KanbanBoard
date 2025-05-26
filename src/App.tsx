@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useRouter } from 'next/router'
 import {
   DndContext,
   DragOverlay,
@@ -20,6 +21,8 @@ import Item from '@/components/Item'
 import DialogManager from '@/components/DialogManager'
 
 function App() {
+  const router = useRouter()
+
   const itemGroups = useKanbanStore((state) => state.itemGroups)
   const removeCard = useKanbanStore((state) => state.removeCard)
   const moveCardBetweenGroups = useKanbanStore((state) => state.moveCardBetweenGroups)
@@ -85,9 +88,15 @@ function App() {
         onDragEnd={handleDragEnd}
       >
         <div className="p-6 bg-gray-50 min-h-screen">
-          <h2 className="text-3xl font-bold m-0 flex items-center gap-2">
-            칸반 보드
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-3xl font-bold m-0">칸반 보드</h2>
+            <button
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              onClick={() => router.push('/')}
+            >
+              홈으로
+            </button>
+          </div>
           <Column
             itemGroups={itemGroups}
             handleOpenDialog={handleOpenDialog}
