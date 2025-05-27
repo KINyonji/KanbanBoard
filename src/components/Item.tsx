@@ -45,6 +45,7 @@ const Item: React.FC<Props> = ({
 
   return (
     <div
+      data-testid="card"
       className={`bg-white border border-gray-300 rounded-md px-4 py-3 select-none ${
         dragOverlay ? "cursor-grabbing" : "cursor-grab"
       }`}
