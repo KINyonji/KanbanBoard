@@ -27,18 +27,19 @@ export default function KanbanPage() {
 
   const itemGroups = useKanbanStore((state) => state.itemGroups);
   const removeCard = useKanbanStore((state) => state.removeCard);
-  const moveCardBetweenGroups = useKanbanStore((state) => state.moveCardBetweenGroups);
+  const moveCardBetweenGroups = useKanbanStore(
+    (state) => state.moveCardBetweenGroups
+  );
 
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [activeCard, setActiveCard] = useState<CardData | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
-  const { handleDragStart, handleDragCancel, handleDragOver, handleDragEnd } = useDragHandlers({
-    itemGroups,
-    moveCardBetweenGroups,
-    setActiveCard,
-    setActiveId,
-  });
+  const { handleDragStart, handleDragCancel, handleDragOver, handleDragEnd } =
+    useDragHandlers({
+      itemGroups,
+      moveCardBetweenGroups,
+      setActiveCard
+    });
 
   const sensors = useSensors(
     useSensor(CustomPointerSensor),
@@ -107,7 +108,7 @@ export default function KanbanPage() {
           />
         </div>
         <DragOverlay>
-          {activeId ? <Item card={activeCard} dragOverlay /> : null}
+          {activeCard ? <Item card={activeCard} dragOverlay /> : null}
         </DragOverlay>
       </DndContext>
     </>
