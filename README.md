@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🗂️ KanbanBoard
 
-## Getting Started
+Next.js + TypeScript + Zustand + dnd-kit 기반의 칸반보드 프로젝트입니다.
+드래그 앤 드롭, 카드 CRUD, 로컬스토리지 상태 저장, E2E 테스트(Playwright)까지 지원합니다.
 
-First, run the development server:
+---
+
+## 📦 기술 스택
+
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Language**: TypeScript
+- **State Management**: Zustand (with persist middleware)
+- **Drag & Drop**: dnd-kit
+- **Styling**: Tailwind CSS
+- **Testing**: Playwright, Vitest
+- **Build Tool**: pnpm + Vite
+
+---
+
+## 🖥️ 프로젝트 실행 방법
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# 패키지 설치
+pnpm install
+
+# 개발 서버 실행
 pnpm dev
-# or
-bun dev
+
+# http://localhost:3000 접속
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 디렉토리 구조
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+KanbanBoard/
+├── public/                     # 정적 자산
+├── tests/                      # E2E 테스트 파일
+│   ├── kanban-actions.spec.ts # 카드 추가/수정/삭제/드래그 시나리오
+│   └── open-browser.spec.ts   # 기본 진입 및 링크 이동 테스트
+├── src/
+│   ├── app/
+│   │   ├── page.tsx           # 메인 페이지 (/)
+│   │   └── kanban/
+│   │       └── page.tsx       # 칸반 보드 페이지 (/kanban)
+│   ├── components/
+│   │   ├── Column.tsx         # 컬럼 그룹 컴포넌트
+│   │   ├── Dialog.tsx         # 카드 추가/수정 팝업 UI
+│   │   ├── DialogManager.tsx  # 팝업 상태 관리
+│   │   ├── Droppable.tsx      # dnd-kit 드롭존
+│   │   ├── Item.tsx           # 카드 아이템 UI
+│   │   ├── SortableItem.tsx   # 드래그 가능한 카드 래퍼
+│   │   └── Kanban.tsx         # 전체 보드 컴포넌트
+│   ├── hooks/
+│   │   ├── useDialog.ts       # 팝업 열기/닫기 상태 훅
+│   │   └── useDragHandlers.ts # 드래그 이벤트 핸들러 훅
+│   ├── store/
+│   │   └── kanbanStore.ts     # Zustand 상태 저장소 + persist 적용
+│   ├── types/
+│   │   └── card.ts            # 카드 데이터 타입 정의
+│   ├── utils/
+│   │   └── date.ts            # 날짜 포맷 유틸 함수
+│   └── styles/
+│       └── globals.css        # 글로벌 스타일
+├── playwright.config.ts       # E2E 테스트 설정
+├── tailwind.config.ts         # Tailwind 설정
+├── tsconfig.json              # 타입스크립트 설정
+├── package.json               # 스크립트 및 의존성 정의
+└── README.md                  # 설명 문서 (현재 파일)
+```
