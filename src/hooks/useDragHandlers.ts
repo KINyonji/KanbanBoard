@@ -18,15 +18,22 @@ interface Props {
     card: CardData
   ) => void
   setActiveCard: (card: CardData | null) => void
-  setActiveId: (id: string | null) => void
 }
 
 export function useDragHandlers({
   itemGroups,
   moveCardBetweenGroups,
   setActiveCard,
-  setActiveId,
 }: Props) {
+
+  const handleDragStart = useCallback(
+    ({ active }: DragStartEvent) => {
+      const containerId = active.data.current?.sortable?.containerId
+      const card = itemGroups[containerId]?.find((c) => c.id === active.id) ?? null
+      setActiveCard(card)
+    },
+    [itemGroups, setActiveCard],
+  )
 
   const getDragMetaData = (
     active: DragStartEvent['active'] | DragOverEvent['active'] | DragEndEvent['active'],
@@ -51,18 +58,9 @@ export function useDragHandlers({
     }
   }
 
-  const handleDragStart = useCallback(
-    ({ active }: DragStartEvent) => {
-      const containerId = active.data.current?.sortable?.containerId
-      const card = itemGroups[containerId]?.find((c) => c.id === active.id) ?? null
-      setActiveCard(card)
-    },
-    [itemGroups, setActiveCard],
-  )
-
   const handleDragCancel = useCallback(() => {
-    setActiveId(null)
-  }, [setActiveId])
+    setActiveCard(null)
+  }, [setActiveCard])
 
   const handleDragOver = useCallback(
     ({ active, over }: DragOverEvent) => {
@@ -80,21 +78,21 @@ export function useDragHandlers({
   const handleDragEnd = useCallback(
     ({ active, over }: DragEndEvent) => {
       if (!over || active.id === over.id) {
-        setActiveId(null)
+        setActiveCard(null)
         return
       }
 
       const { from, to, fromIndex, toIndex, card } = getDragMetaData(active, over)
 
       if (!card || !from || !to || fromIndex == null || toIndex == null) {
-        setActiveId(null)
+        setActiveCard(null)
         return
       }
 
       moveCardBetweenGroups(from, to, fromIndex, toIndex, card)
-      setActiveId(null)
+      setActiveCard(null)
     },
-    [itemGroups, moveCardBetweenGroups, setActiveId],
+    [itemGroups, moveCardBetweenGroups, setActiveCard],
   )
 
   return { handleDragStart, handleDragCancel, handleDragOver, handleDragEnd }

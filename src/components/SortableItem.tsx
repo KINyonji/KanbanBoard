@@ -9,8 +9,8 @@ import type { CardData } from "@/types/card";
 
 type Props = {
   card: CardData;
-  onDelete?: (id: string) => void
-  onEdit?: (card: CardData) => void
+  onDelete?: (id: string) => void;
+  onEdit?: (card: CardData) => void;
 };
 
 const SortableItem: React.FC<Props> = ({ card, onDelete, onEdit }) => {
@@ -31,7 +31,7 @@ const SortableItem: React.FC<Props> = ({ card, onDelete, onEdit }) => {
 
   return (
     <div style={style} ref={setNodeRef} {...attributes} {...listeners}>
-      <Item card={card}  onDelete={onDelete} onEdit={onEdit}/>
+      <Item card={card} onDelete={onDelete} onEdit={onEdit} />
     </div>
   );
 };
