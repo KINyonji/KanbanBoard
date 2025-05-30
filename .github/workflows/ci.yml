@@ -19,11 +19,11 @@ jobs:
         with:
           node-version: 18
           cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
-          check-latest: true
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.4 --activate
 
       - name: Install dependencies
         run: pnpm install
