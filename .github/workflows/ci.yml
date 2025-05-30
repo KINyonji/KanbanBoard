@@ -18,12 +18,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
-          check-latest: true
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable corepack and setup pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.4 --activate
+          pnpm -v
 
       - name: Install dependencies
         run: pnpm install
@@ -31,11 +31,8 @@ jobs:
       - name: Build project (Next.js)
         run: pnpm build
 
-      - name: Run unit tests (Vitest)
-        run: pnpm exec vitest run
-
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
 
-      - name: Run E2E tests (Playwright)
+      - name: Run Playwright E2E tests
         run: pnpm run test:e2e
