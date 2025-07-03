@@ -13,20 +13,19 @@ interface KanbanState {
   addCard: (groupId: string, card: CardData) => void
   removeCard: (groupId: string, cardId: string) => void
   moveCardBetweenGroups: (
-    from: string,
-    to: string,
-    fromIndex: number,
-    toIndex: number,
-    card: CardData,
+    from: string,to: string,fromIndex: number,toIndex: number,card: CardData,
   ) => void
   incrementCount: () => void
   updateCard: (groupId: string, updatedCard: CardData) => void
 }
 
 const defaultGroups: ItemGroups = {
-  group1: [],
-  group2: [],
-  group3: [],
+  group1: [],group2: [],group3: [],
+
+
+
+
+  
 }
 
 export const useKanbanStore = create<KanbanState>()(
@@ -47,7 +46,7 @@ export const useKanbanStore = create<KanbanState>()(
           itemGroups: {
             ...state.itemGroups,
             [groupId]: state.itemGroups[groupId].filter(
-              (card) => card.id !== cardId,
+              (card) => card.id !== cardId
             ),
           },
         })),
@@ -82,7 +81,7 @@ export const useKanbanStore = create<KanbanState>()(
       updateCard: (groupId, updatedCard) =>
         set((state) => {
           const updatedGroup = state.itemGroups[groupId].map((card) =>
-            card.id === updatedCard.id ? updatedCard : card,
+            card.id === updatedCard.id ? updatedCard : card
           )
           return {
             itemGroups: {
@@ -94,6 +93,6 @@ export const useKanbanStore = create<KanbanState>()(
     }),
     {
       name: 'kanban-storage',
-    },
-  ),
+    }
+  )
 )
