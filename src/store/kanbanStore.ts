@@ -25,12 +25,15 @@ const defaultGroups: ItemGroups = {
 
 
 
-  
+
 }
 
 export const useKanbanStore = create<KanbanState>()(
   persist(
     (set) => ({
+
+
+      
       itemGroups: defaultGroups,
       itemCount: 1,
       setItemGroups: (groups) => set({ itemGroups: groups }),
