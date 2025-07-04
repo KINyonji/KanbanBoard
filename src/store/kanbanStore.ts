@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { CardData } from '@/types/card'
+import type { CardData } from '@/@types/card.type'
 
 type ItemGroups = {
   [key: string]: CardData[]
@@ -13,27 +13,25 @@ interface KanbanState {
   addCard: (groupId: string, card: CardData) => void
   removeCard: (groupId: string, cardId: string) => void
   moveCardBetweenGroups: (
-    from: string,to: string,fromIndex: number,toIndex: number,card: CardData,
+    from: string,
+    to: string,
+    fromIndex: number,
+    toIndex: number,
+    card: CardData
   ) => void
   incrementCount: () => void
   updateCard: (groupId: string, updatedCard: CardData) => void
 }
 
 const defaultGroups: ItemGroups = {
-  group1: [],group2: [],group3: [],
-
-
-
-
-
+  group1: [],
+  group2: [],
+  group3: [],
 }
 
 export const useKanbanStore = create<KanbanState>()(
   persist(
     (set) => ({
-
-
-      
       itemGroups: defaultGroups,
       itemCount: 1,
       setItemGroups: (groups) => set({ itemGroups: groups }),
