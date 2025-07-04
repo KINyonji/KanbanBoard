@@ -6,7 +6,7 @@ import { DialogType } from '@/config/dialogType.config'
 
 export function useDialog() {
   const [isOpen, setIsOpen] = useState(false)
-  const [dialogType, setDialogType] = useState<DialogType | null>(null)
+  const [dialogType, setDialogType] = useState<DialogType>(DialogType.ADD)
   const [editingCard, setEditingCard] = useState<CardData | null>(null)
 
   const openDialog = (type: DialogType, cardData: CardData | null = null) => {
@@ -17,7 +17,7 @@ export function useDialog() {
 
   const closeDialog = () => {
     setIsOpen(false)
-    setDialogType(null)
+    setDialogType(DialogType.ADD)
     setEditingCard(null)
   }
 

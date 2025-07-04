@@ -86,9 +86,14 @@ export default function KanbanPage() {
     [removeCard]
   )
 
-  const memoizedDialog = useMemo(() => {
-    if (isDialogOpen && dialogType) {
-      return (
+  const isShownDialog = useMemo<boolean>(() => {
+    // dialogType이 null이면 false를 반환하고, 그렇지 않으면 true를 반환
+    return isDialogOpen && !!dialogType
+  }, [isDialogOpen, dialogType])
+
+  return (
+    <>
+      {isShownDialog && (
         <DialogManager
           isOpen={isDialogOpen}
           dialogType={dialogType}
@@ -96,14 +101,7 @@ export default function KanbanPage() {
           selectedGroup={selectedGroup}
           closeDialog={closeDialog}
         />
-      )
-    }
-    return null
-  }, [isDialogOpen, dialogType, editingCard, selectedGroup, closeDialog])
-
-  return (
-    <>
-      {memoizedDialog}
+      )}
 
       <DndContext
         sensors={memoizedSensors} // 메모이제이션된 sensors 사용
