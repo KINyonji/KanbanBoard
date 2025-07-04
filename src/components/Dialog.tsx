@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom'
 import { useKeyDown } from '@/utils/useKeyDown.util'
 import { KeyBoard } from '@/config/keyBoard.config'
 import { BUTTON_TEXT } from '@/config/buttonText.config'
+import { MESSAGE } from '@/config/message.config'
+import { FORMLABEL } from '@/config/formLabel.config'
 
 type Props = {
   initialTitle?: string
@@ -35,15 +37,15 @@ const Dialog: React.FC<Props> = ({
 
   const handleConfirm = () => {
     if (!title.trim() && !author.trim()) {
-      setError('제목과 담당자 id는 필수 항목입니다.')
+      setError(MESSAGE.REQUIRED_TITLE_AND_AUTHOR)
       return
     }
     if (!title.trim()) {
-      setError('제목은 필수 항목입니다.')
+      setError(MESSAGE.REQUIRED_TITLE)
       return
     }
     if (!author.trim()) {
-      setError('담당자 id는 필수 항목입니다.')
+      setError(MESSAGE.REQUIRED_AUTHOR)
       return
     }
     setError('')
@@ -76,7 +78,7 @@ const Dialog: React.FC<Props> = ({
             fontWeight: 'bold',
             marginBottom: '1rem',
           }}>
-          항목 추가/수정
+          {FORMLABEL.ADD_EDIT_ITEM}
         </h2>
 
         <div style={{ marginBottom: '1rem' }}>
@@ -86,7 +88,7 @@ const Dialog: React.FC<Props> = ({
               fontSize: '0.9rem',
               marginBottom: '0.3rem',
             }}>
-            이슈 제목
+            {FORMLABEL.ISSUE_TITLE}
           </label>
           <input
             type='text'
@@ -110,7 +112,7 @@ const Dialog: React.FC<Props> = ({
               fontSize: '0.9rem',
               marginBottom: '0.3rem',
             }}>
-            담당자 id
+            {FORMLABEL.AUTHOR_ID}
           </label>
           <input
             type='text'

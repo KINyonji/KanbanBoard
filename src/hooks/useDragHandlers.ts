@@ -3,6 +3,7 @@
 import { useCallback } from 'react'
 import type { CardData } from '@/@types/card.type'
 import type { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
+import { DRAG_EVENTS } from '@/config/constants.config'
 
 interface Props {
   itemGroups: Record<string, CardData[]>
@@ -33,10 +34,10 @@ export function useDragHandlers({
 
   const getDragMetaData = (
     active:
-      | DragStartEvent['active']
-      | DragOverEvent['active']
-      | DragEndEvent['active'],
-    over: DragOverEvent['over'] | DragEndEvent['over']
+      | DragStartEvent[DRAG_EVENTS.ACTIVE]
+      | DragOverEvent[DRAG_EVENTS.ACTIVE]
+      | DragEndEvent[DRAG_EVENTS.ACTIVE],
+    over: DragOverEvent[DRAG_EVENTS.OVER] | DragEndEvent[DRAG_EVENTS.OVER]
   ) => {
     const from = active.data.current?.sortable?.containerId
     const to = over?.data.current?.sortable?.containerId || over?.id

@@ -4,6 +4,7 @@ import React from 'react'
 
 import type { CardData } from '@/@types/card.type'
 import { BUTTON_TEXT } from '@/config/buttonText.config'
+import { MESSAGE } from '@/config/message.config'
 
 type Props = {
   card: CardData | null
@@ -22,7 +23,7 @@ const Item: React.FC<Props> = ({
   if (!card) return null
 
   const handleDelete = () => {
-    const confirmed = window.confirm('정말 이 항목을 삭제하시겠습니까?')
+    const confirmed = window.confirm(MESSAGE.CONFIRM_DELETE_ITEM)
     if (!confirmed) return
 
     if (!card || !onDelete) {
