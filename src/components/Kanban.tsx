@@ -43,7 +43,6 @@ export default function KanbanPage() {
       setActiveCard,
     })
 
-  // sensors 훅을 컴포넌트 본문에서 호출
   const sensors = useSensors(
     useSensor(CustomPointerSensor),
     useSensor(TouchSensor),
@@ -51,9 +50,6 @@ export default function KanbanPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   )
-
-  // 메모이제이션된 sensors 반환
-  const memoizedSensors = useMemo(() => sensors, [sensors])
 
   const {
     isOpen: isDialogOpen,
@@ -104,7 +100,7 @@ export default function KanbanPage() {
       )}
 
       <DndContext
-        sensors={memoizedSensors} // 메모이제이션된 sensors 사용
+        sensors={sensors}
         onDragStart={handleDragStart}
         onDragCancel={handleDragCancel}
         onDragOver={handleDragOver}
