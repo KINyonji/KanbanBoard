@@ -36,6 +36,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.1.2",
     "postcss": "^8.5.3",
     "prettier": "^3.6.0",
     "tailwindcss": "3.4.1",
@@ -46,5 +47,11 @@
     "node": "22.14.0",
     "npm": ">=9 <11",
     "pnpm": "10.10.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
