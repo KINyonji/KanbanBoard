@@ -1,12 +1,9 @@
-"use client";
+'use client'
 
 import { useCallback } from 'react'
-import type { CardData } from '@/types/card'
-import type {
-  DragStartEvent,
-  DragOverEvent,
-  DragEndEvent,
-} from '@dnd-kit/core'
+import type { CardData } from '@/@types/card.type'
+import type { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core'
+import { DRAG_EVENTS } from '@/config/constants.config'
 
 interface Props {
   itemGroups: Record<string, CardData[]>
@@ -25,27 +22,37 @@ export function useDragHandlers({
   moveCardBetweenGroups,
   setActiveCard,
 }: Props) {
-
   const handleDragStart = useCallback(
     ({ active }: DragStartEvent) => {
       const containerId = active.data.current?.sortable?.containerId
-      const card = itemGroups[containerId]?.find((c) => c.id === active.id) ?? null
+      const card =
+        itemGroups[containerId]?.find((c) => c.id === active.id) ?? null
       setActiveCard(card)
     },
-    [itemGroups, setActiveCard],
+    [itemGroups, setActiveCard]
   )
 
   const getDragMetaData = (
-    active: DragStartEvent['active'] | DragOverEvent['active'] | DragEndEvent['active'],
-    over: DragOverEvent['over'] | DragEndEvent['over']
+    active:
+      | DragStartEvent[DRAG_EVENTS.ACTIVE]
+      | DragOverEvent[DRAG_EVENTS.ACTIVE]
+      | DragEndEvent[DRAG_EVENTS.ACTIVE],
+    over: DragOverEvent[DRAG_EVENTS.OVER] | DragEndEvent[DRAG_EVENTS.OVER]
   ) => {
     const from = active.data.current?.sortable?.containerId
     const to = over?.data.current?.sortable?.containerId || over?.id
     const fromIndex = active.data.current?.sortable?.index
-    const toIndex =
-      over && over.id in itemGroups
-        ? itemGroups[to].length
-        : over?.data.current?.sortable?.index
+    const toIndex = (() => {
+      if (!over) return null
+
+      // over.id가 itemGroups에 존재하면 해당 그룹의 길이를 반환
+      if (over.id in itemGroups) {
+        return itemGroups[over.id].length
+      }
+
+      // 그렇지 않으면, over의 sortable index를 반환
+      return over?.data.current?.sortable?.index ?? null
+    })()
 
     const card = from ? itemGroups[from]?.find((c) => c.id === active.id) : null
 
@@ -66,13 +73,24 @@ export function useDragHandlers({
     ({ active, over }: DragOverEvent) => {
       if (!over) return
 
-      const { from, to, fromIndex, toIndex, card } = getDragMetaData(active, over)
+      const { from, to, fromIndex, toIndex, card } = getDragMetaData(
+        active,
+        over
+      )
 
-      if (!card || !from || !to || from === to || fromIndex == null || toIndex == null) return
+      if (
+        !card ||
+        !from ||
+        !to ||
+        from === to ||
+        fromIndex == null ||
+        toIndex == null
+      )
+        return
 
       moveCardBetweenGroups(from, to, fromIndex, toIndex, card)
     },
-    [itemGroups, moveCardBetweenGroups],
+    [itemGroups, moveCardBetweenGroups]
   )
 
   const handleDragEnd = useCallback(
@@ -82,7 +100,10 @@ export function useDragHandlers({
         return
       }
 
-      const { from, to, fromIndex, toIndex, card } = getDragMetaData(active, over)
+      const { from, to, fromIndex, toIndex, card } = getDragMetaData(
+        active,
+        over
+      )
 
       if (!card || !from || !to || fromIndex == null || toIndex == null) {
         setActiveCard(null)
@@ -92,7 +113,7 @@ export function useDragHandlers({
       moveCardBetweenGroups(from, to, fromIndex, toIndex, card)
       setActiveCard(null)
     },
-    [itemGroups, moveCardBetweenGroups, setActiveCard],
+    [itemGroups, moveCardBetweenGroups, setActiveCard]
   )
 
   return { handleDragStart, handleDragCancel, handleDragOver, handleDragEnd }

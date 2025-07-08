@@ -1,8 +1,10 @@
+import { KST_OFFSET, MILLISECONDS_IN_HOUR } from '@/config/timeConstants.config'
+
 export const getCurrentKST = (): string => {
   const now = new Date()
 
   // 한국 시간 기준으로 보정
-  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000)
+  const kst = new Date(now.getTime() + KST_OFFSET * MILLISECONDS_IN_HOUR)
 
   const pad = (n: number) => n.toString().padStart(2, '0')
 

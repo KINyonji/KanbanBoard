@@ -1,15 +1,15 @@
-// components/DialogManager.tsx
-"use client";
+'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import Dialog from './Dialog'
-import type { CardData } from '@/types/card'
-import { getCurrentKST } from '@/utils/date'
+import type { CardData } from '@/@types/card.type'
+import { getCurrentKST } from '@/utils/date.util'
 import { useKanbanStore } from '@/store/kanbanStore'
+import { DialogType } from '@/config/dialogType.config'
 
 type Props = {
   isOpen: boolean
-  dialogType: 'add' | 'edit'
+  dialogType: DialogType
   editingCard: CardData | null
   selectedGroup: string | null
   closeDialog: () => void
@@ -30,7 +30,7 @@ const DialogManager: React.FC<Props> = ({
     (title: string, author: string) => {
       if (!selectedGroup) return
 
-      if (dialogType === 'add') {
+      if (dialogType === DialogType.ADD) {
         const newCard: CardData = {
           id: String(itemCount),
           issueId: `ISSUE-${itemCount}`,
@@ -40,7 +40,7 @@ const DialogManager: React.FC<Props> = ({
         }
         addCard(selectedGroup, newCard)
         incrementCount()
-      } else if (dialogType === 'edit' && editingCard) {
+      } else if (dialogType === DialogType.EDIT && editingCard) {
         const updatedCard = {
           ...editingCard,
           content: title,
@@ -52,15 +52,26 @@ const DialogManager: React.FC<Props> = ({
 
       closeDialog()
     },
-    [selectedGroup, dialogType, editingCard, itemCount, addCard, incrementCount, closeDialog],
+    [
+      selectedGroup,
+      dialogType,
+      editingCard,
+      itemCount,
+      addCard,
+      incrementCount,
+      closeDialog,
+    ]
   )
+
+  const initialTitle = useMemo(() => editingCard?.content || '', [editingCard])
+  const initialAuthor = useMemo(() => editingCard?.author || '', [editingCard])
 
   if (!isOpen) return null
 
   return (
     <Dialog
-      initialTitle={editingCard?.content || ''}
-      initialAuthor={editingCard?.author || ''}
+      initialTitle={initialTitle}
+      initialAuthor={initialAuthor}
       onConfirm={handleConfirm}
       onClose={closeDialog}
     />

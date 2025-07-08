@@ -1,7 +1,12 @@
-"use client";
+'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
+import { useKeyDown } from '@/utils/useKeyDown.util'
+import { KeyBoard } from '@/config/keyBoard.config'
+import { BUTTON_TEXT } from '@/config/buttonText.config'
+import { MESSAGE } from '@/config/message.config'
+import { FORMLABEL } from '@/config/formLabel.config'
 
 type Props = {
   initialTitle?: string
@@ -16,29 +21,31 @@ const Dialog: React.FC<Props> = ({
   onConfirm,
   onClose,
 }) => {
-  const [title, setTitle] = React.useState(initialTitle)
-  const [author, setAuthor] = React.useState(initialAuthor)
-  const [error, setError] = useState('')
+  const [title, setTitle] = useState<string>(initialTitle)
+  const [author, setAuthor] = useState<string>(initialAuthor)
+  const [error, setError] = useState<string>('')
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
+  useKeyDown(KeyBoard.ESCAPE, onClose)
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value)
+  }
+
+  const handleAuthorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAuthor(e.target.value)
+  }
 
   const handleConfirm = () => {
     if (!title.trim() && !author.trim()) {
-      setError('제목과 담당자 id는 필수 항목입니다.')
+      setError(MESSAGE.REQUIRED_TITLE_AND_AUTHOR)
       return
     }
     if (!title.trim()) {
-      setError('제목은 필수 항목입니다.')
+      setError(MESSAGE.REQUIRED_TITLE)
       return
     }
     if (!author.trim()) {
-      setError('담당자 id는 필수 항목입니다.')
+      setError(MESSAGE.REQUIRED_AUTHOR)
       return
     }
     setError('')
@@ -55,8 +62,7 @@ const Dialog: React.FC<Props> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-      }}
-    >
+      }}>
       <div
         style={{
           backgroundColor: 'white',
@@ -65,16 +71,14 @@ const Dialog: React.FC<Props> = ({
           width: '400px',
           maxWidth: '100%',
           boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-        }}
-      >
+        }}>
         <h2
           style={{
             fontSize: '1.1rem',
             fontWeight: 'bold',
             marginBottom: '1rem',
-          }}
-        >
-          항목 추가/수정
+          }}>
+          {FORMLABEL.ADD_EDIT_ITEM}
         </h2>
 
         <div style={{ marginBottom: '1rem' }}>
@@ -83,15 +87,14 @@ const Dialog: React.FC<Props> = ({
               display: 'block',
               fontSize: '0.9rem',
               marginBottom: '0.3rem',
-            }}
-          >
-            이슈 제목
+            }}>
+            {FORMLABEL.ISSUE_TITLE}
           </label>
           <input
-            type="text"
+            type='text'
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="이슈 제목을 입력해주세요"
+            onChange={handleTitleChange}
+            placeholder='이슈 제목을 입력해주세요'
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -108,15 +111,14 @@ const Dialog: React.FC<Props> = ({
               display: 'block',
               fontSize: '0.9rem',
               marginBottom: '0.3rem',
-            }}
-          >
-            담당자 id
+            }}>
+            {FORMLABEL.AUTHOR_ID}
           </label>
           <input
-            type="text"
+            type='text'
             value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            placeholder="담당자 id를 입력해주세요"
+            onChange={handleAuthorChange}
+            placeholder='담당자 id를 입력해주세요'
             style={{
               width: '100%',
               padding: '0.5rem',
@@ -133,15 +135,17 @@ const Dialog: React.FC<Props> = ({
               color: '#dc2626',
               fontSize: '0.875rem',
               marginBottom: '1rem',
-            }}
-          >
+            }}>
             {error}
           </div>
         )}
 
         <div
-          style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}
-        >
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '0.5rem',
+          }}>
           <button
             onClick={onClose}
             style={{
@@ -151,9 +155,8 @@ const Dialog: React.FC<Props> = ({
               borderRadius: '0.375rem',
               fontSize: '0.9rem',
               cursor: 'pointer',
-            }}
-          >
-            취소
+            }}>
+            {BUTTON_TEXT.CANCEL}
           </button>
           <button
             onClick={handleConfirm}
@@ -164,9 +167,8 @@ const Dialog: React.FC<Props> = ({
               borderRadius: '0.375rem',
               fontSize: '0.9rem',
               cursor: 'pointer',
-            }}
-          >
-            확인
+            }}>
+            {BUTTON_TEXT.CONFIRM}
           </button>
         </div>
       </div>
